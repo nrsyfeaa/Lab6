@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 6 - Display Books Records</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 40px;
+        }
+
+        .details {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            width: 320px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h2>Book Search Portal</h2>
+
+    <!-- Dropdown to select book title -->
+     <label for="bookSelect">Select a Book Title: </label>
+     <select id="bookSelect">
+        <option value="">--Select a Book</option>
+     </select>
+
+     <!-- Container to display book details -->
+      <div class="details" id="bookDetails">
+        <p>Please select a book to view the details.</p>
+      </div>
+
+      <script>
+        //Replace with the GitHub raw URL for books.json
+        const jsonUrl='https://raw.githubusercontent.com/nrsyfeaa/Lab6/refs/heads/main/books.json';
+
+        const bookSelect = document.getElementById('bookSelect');
+        const bookDetails = document.getElementById('bookDetails');
+        let booksData = [];
+
+        // Fetch JSON data from GitHub
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                booksData = data.Books;
+
+                // Populate the select dropdown options with book titles
+                booksData.forEach((book, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = book.title;
+                    bookSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching JSON: ', error);
+                bookDetails.innerHTML = '<p style="color: red;">Error load book data from GitHub.</p>';
+            });
+
+            // Event listener for dropdown selection change
+            bookSelect.addEventListener('change', (event) => {
+                const selectedIndex = event.target.value;
+
+                if (selectedIndex === "") {
+                    bookDetails.innerHTML = '<p>Please select a book to view details.</p>';
+                    return;
+                }
+
+                const book = booksData[selectedIndex];
+
+                if (book) {
+                    // Display title, author, publication year, and genre
+                    bookDetails.innerHTML = `
+                        <p><strong>Title:</strong> ${book.title}</p>
+                        <p><strong>Author:</strong> ${book.author}</p>
+                        <p><strong>Publication Year:</strong> ${book.publicationYear}</p>
+                        <p><strong>Genre:</strong> ${book.genres.join(', ')}</p>
+                    `;
+                } else {
+                    bookDetails.innerHTML = '<p style="color: red;">Book not found.</p>';
+                }
+            });
+      </script>
+</body>
+</html>
